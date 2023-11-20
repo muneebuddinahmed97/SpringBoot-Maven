@@ -20,7 +20,7 @@ jobs:
 
     - name: Build JAR
       run: mvn clean package
-      working-directory: ./webapp  # Update to your actual module folder
+      working-directory: ./
 
     - name: Create Release
       id: create_release
