@@ -18,16 +18,8 @@ jobs:
     - name: Set Version
       run: echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_ENV
 
-    - name: Clean Up Unnecessary Files
-      run: |
-        mvn clean
-        rm -rf .github target  # Remove any additional directories you want to exclude
-      working-directory: ./
-
     - name: Build JAR
-      run: |
-        mvn package
-        mv ./target/*.jar springboot-maven.jar
+      run: mvn clean package
       working-directory: ./
 
     - name: Create Release
@@ -46,6 +38,6 @@ jobs:
       run: |
         RELEASE_ID=$(echo ${{ steps.create_release.outputs.response }} | jq -r .id)
         GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}"
-        jar_file="./springboot-maven.jar"  # Update the file path to match the actual location of your JAR file
+        jar_file="./target/*.jar"  # Update the file path to match the actual location of your JAR file
         curl -X POST "https://uploads.github.com/repos/${{ github.repository }}/releases/$RELEASE_ID/assets?name=springboot-maven.jar" -H "Authorization: token $GITHUB_TOKEN" --data-binary "@$jar_file"
         echo "JAR file uploaded as a release asset"
