@@ -1,4 +1,4 @@
-name: making a build and release of .jar springboot maven file with tagging..
+name: Build and Release the JAR file with Tagging
 
 on:
   workflow_dispatch:
@@ -18,10 +18,15 @@ jobs:
     - name: Set Version
       run: echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_ENV
 
+    - name: Clean Up Unnecessary Files
+      run: |
+        mvn clean
+        rm -rf .github target  # Remove any additional directories you want to exclude
+      working-directory: ./
+
     - name: Build JAR
       run: |
-        mvn clean package
-        # Update the file path to match the actual location of your JAR file
+        mvn package
         mv ./target/*.jar springboot-maven.jar
       working-directory: ./
 
@@ -40,7 +45,7 @@ jobs:
     - name: Upload JAR as Release Asset
       run: |
         RELEASE_ID=$(echo ${{ steps.create_release.outputs.response }} | jq -r .id)
-        TOKEN_KEY="${{ secrets.TOKEN_KEY }}"
+        GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}"
         jar_file="./springboot-maven.jar"  # Update the file path to match the actual location of your JAR file
         curl -X POST "https://uploads.github.com/repos/${{ github.repository }}/releases/$RELEASE_ID/assets?name=springboot-maven.jar" -H "Authorization: token $GITHUB_TOKEN" --data-binary "@$jar_file"
         echo "JAR file uploaded as a release asset"
