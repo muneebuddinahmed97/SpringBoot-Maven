@@ -1,0 +1,46 @@
+name: making a build and release of .jar springboot maven file with tagging..
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Enter the build number or version of your project: '
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set Version
+      run: echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_ENV
+
+    - name: Build JAR
+      run: |
+        mvn clean package
+        # Update the file path to match the actual location of your JAR file
+        mv ./target/*.jar springboot-maven.jar
+      working-directory: ./
+
+    - name: Create Release
+      id: create_release
+      run: |
+        VERSION=$VERSION
+        RELEASE_NAME="Release $VERSION"
+        RELEASE_BODY="Release for version $VERSION"
+        TOKEN_KEY="${{ secrets.TOKEN_KEY }}"
+        response=$(curl -X POST "https://api.github.com/repos/${{ github.repository }}/releases" -H "Authorization: token $TOKEN_KEY" -d '{"tag_name": "'"$VERSION"'","name": "'"$RELEASE_NAME"'","body": "'"$RELEASE_BODY"'"}')
+        echo "Release created: $response"
+      env:
+        VERSION: ${{ env.VERSION }}
+
+    - name: Upload JAR as Release Asset
+      run: |
+        RELEASE_ID=$(echo ${{ steps.create_release.outputs.response }} | jq -r .id)
+        TOKEN_KEY="${{ secrets.TOKEN_KEY }}"
+        jar_file="./springboot-maven.jar"  # Update the file path to match the actual location of your JAR file
+        curl -X POST "https://uploads.github.com/repos/${{ github.repository }}/releases/$RELEASE_ID/assets?name=springboot-maven.jar" -H "Authorization: token $GITHUB_TOKEN" --data-binary "@$jar_file"
+        echo "JAR file uploaded as a release asset"
