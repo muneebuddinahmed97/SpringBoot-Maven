@@ -20,13 +20,11 @@ jobs:
 
     - name: Build JAR
       run: mvn clean package
-      working-directory: ./
+      working-directory: ./  # Update to your actual module folder
 
-    - name: Clean Up Unnecessary Files
-      run: |
-        mv /target/*[^.jar] springboot-maven.jar
-        rm -rf ./src ./.github ./pom.xml
-        working-directory: ./
+    - name: Move JAR to Parent Root
+      run: mv ./target/*.jar ./
+      working-directory: ./
 
     - name: Create Release
       id: create_release
@@ -43,7 +41,7 @@ jobs:
     - name: Upload JAR as Release Asset
       run: |
         RELEASE_ID=$(echo ${{ steps.create_release.outputs.response }} | jq -r .id)
-        TOKEN_KEY="${{ secrets.TOKEN_KEY }}"
-        jar_file="springboot-maven.jar"  # Update the file path to match the actual location of your JAR file
+        GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}"
+        jar_file="./*.jar"  # Update the file path to match the actual location of your JAR file
         curl -X POST "https://uploads.github.com/repos/${{ github.repository }}/releases/$RELEASE_ID/assets?name=springboot-maven.jar" -H "Authorization: token $TOKEN_KEY" --data-binary "@$jar_file"
         echo "JAR file uploaded as a release asset"
