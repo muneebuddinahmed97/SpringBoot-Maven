@@ -21,6 +21,12 @@ jobs:
     - name: Build JAR
       run: mvn clean package
       working-directory: ./  # Update to your actual module folder
+      
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: Artifacts
+        path: target/spring-boot-app-1.0-SNAPSHOT.jar       
 
     - name: Move JAR to Parent Root
       run: mv ./target/*.jar ./
