@@ -1,5 +1,3 @@
-name: Build and Release the JAR file with Tagging
-
 on:
   workflow_dispatch:
     inputs:
@@ -20,17 +18,12 @@ jobs:
 
     - name: Build JAR
       run: mvn clean package
-      working-directory: ./  # Update to your actual module folder
-      
-    - name: Upload Artifacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: Artifacts-${{ env.VERSION }}
-        path: target/*.jar
+      working-directory: ./ 
 
-    - name: Move JAR to Parent Root
-      run: mv ./target/*.jar ./
-      working-directory: ./
+    # - name: Clean Up Unnecessary Files
+    #   run: |
+    #   #  rm -rf ./src ./webapp/.github ./webapp/target/*[^.jar]
+    #   working-directory: ./
 
     - name: Create Release
       id: create_release
@@ -47,18 +40,7 @@ jobs:
     - name: Upload JAR as Release Asset
       run: |
         RELEASE_ID=$(echo ${{ steps.create_release.outputs.response }} | jq -r .id)
-        GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}"
-        jar_file="./*.jar"  # Update the file path to match the actual location of your JAR file
-        curl -X POST "https://uploads.github.com/repos/${{ github.repository }}/releases/$RELEASE_ID/assets?name=springboot-maven.jar" -H "Authorization: token $TOKEN_KEY" --data-binary "@$jar_file"
+        TOKEN_KEY="${{ secrets.TOKEN_KEY }}"
+        jar_file="./target/*.jar"  # Update the file path to match the actual location of your JAR file
+        curl -X POST "https://uploads.github.com/repos/${{ github.repository }}/releases/$RELEASE_ID/assets?name=springboot-maven.jar" -H "Authorization: token $GITHUB_TOKEN" --data-binary "@$jar_file"
         echo "JAR file uploaded as a release asset"
-
-
-    - name: Generate and Send Notification
-      if: success()
-      run: |
-        ARTIFACT_URL="https://github.com/${{ github.repository }}/releases/tag/${{ env.VERSION }}"
-        echo "Artifact URL: $ARTIFACT_URL"
-        # You can use your preferred method to send notifications, e.g., sending an email or using a messaging service.
-        # Here, I'm just printing the URL for demonstration purposes.
-        echo "Notification: Check the build artifacts at $ARTIFACT_URL"
-
