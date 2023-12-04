@@ -25,8 +25,8 @@ jobs:
     - name: Upload Artifacts
       uses: actions/upload-artifact@v3
       with:
-        name: Artifacts
-        path: target/spring-boot-app-1.0-SNAPSHOT.jar       
+        name: Artifacts-${{ env.VERSION }}
+        path: target/*.jar
 
     - name: Move JAR to Parent Root
       run: mv ./target/*.jar ./
@@ -51,3 +51,14 @@ jobs:
         jar_file="./*.jar"  # Update the file path to match the actual location of your JAR file
         curl -X POST "https://uploads.github.com/repos/${{ github.repository }}/releases/$RELEASE_ID/assets?name=springboot-maven.jar" -H "Authorization: token $TOKEN_KEY" --data-binary "@$jar_file"
         echo "JAR file uploaded as a release asset"
+
+
+    - name: Generate and Send Notification
+      if: success()
+      run: |
+        ARTIFACT_URL="https://github.com/${{ github.repository }}/releases/tag/${{ env.VERSION }}"
+        echo "Artifact URL: $ARTIFACT_URL"
+        # You can use your preferred method to send notifications, e.g., sending an email or using a messaging service.
+        # Here, I'm just printing the URL for demonstration purposes.
+        echo "Notification: Check the build artifacts at $ARTIFACT_URL"
+
