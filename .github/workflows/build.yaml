@@ -25,6 +25,12 @@ jobs:
     #   #  rm -rf ./src ./webapp/.github ./webapp/target/*[^.jar]
     #   working-directory: ./
 
+    - name: Uploading Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: Artifacts-${{ env.VERSION }}
+        path: Build-Artifacts 
+
     - name: Create Release
       id: create_release
       run: |
