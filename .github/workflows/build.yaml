@@ -1,4 +1,4 @@
-name: build & release of .jar
+name: build & release of .jar with tagging
 on:
   workflow_dispatch:
     inputs:
