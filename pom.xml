@@ -3,7 +3,7 @@
 <groupId>com.example</groupId>
 <artifactId>spring-boot-app</artifactId>
 <packaging>jar</packaging>
-<version>${{ env.VERSION }}</version>
+<version>1.0</version>
 <name>spring-boot-app</name>
 <url>http://maven.apache.org</url>
 <properties>
