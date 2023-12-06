@@ -1,4 +1,4 @@
-name: Build and Release the JAR file with Tagging
+name: build & release of .jar
 on:
   workflow_dispatch:
     inputs:
