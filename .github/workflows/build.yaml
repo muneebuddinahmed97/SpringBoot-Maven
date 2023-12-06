@@ -1,5 +1,4 @@
 name: Build and Release the JAR file with Tagging
-
 on:
   workflow_dispatch:
     inputs:
@@ -22,11 +21,15 @@ jobs:
       run: mvn clean package
       working-directory: ./ 
 
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: Artifacts-${{ env.VERSION }}
+        path: target/*.jar
     # - name: Clean Up Unnecessary Files
     #   run: |
     #   #  rm -rf ./src ./webapp/.github ./webapp/target/*[^.jar]
     #   working-directory: ./
-
     - name: Create Release
       id: create_release
       run: |
