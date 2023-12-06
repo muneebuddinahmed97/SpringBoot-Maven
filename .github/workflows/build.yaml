@@ -18,7 +18,7 @@ jobs:
       run: echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_ENV
 
     - name: Build JAR
-      run: mvn clean package -Dproject.version=${{ env.VERSION }}
+      run: mvn clean package
       working-directory: ./ 
 
     - name: Upload Artifacts
